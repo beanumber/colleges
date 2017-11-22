@@ -2,8 +2,12 @@
 
 export(get_bball_year)
 export(get_fball_year)
+export(load_uscb)
 import(dplyr)
+importFrom(readr,parse_number)
+importFrom(readr,read_csv)
 importFrom(rvest,html_nodes)
 importFrom(rvest,html_table)
+importFrom(stringr,str_sub)
 importFrom(tibble,tidy_names)
 importFrom(xml2,read_html)
