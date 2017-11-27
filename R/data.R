@@ -1,32 +1,20 @@
-#' Football results
+#' Basketball and Football results
 #' @docType data
 #'
 #'
-"football"
+"sports"
 
-#' Basketball results
+#' IPEDS and EADA data
 #' @docType data
 #'
 #'
-"basketball"
+"institutions"
 
-#' IPEDS data
+#' Income and HS graduation by state
 #' @docType data
 #'
 #'
-"ipeds"
-
-#' High School graduates by state
-#' @docType data
-#'
-#'
-"hs_graduates"
-
-#' Income by state
-#' @docType data
-#'
-#'
-"incomes"
+"states"
 
 #' VSE Donations
 #' @docType data
@@ -36,7 +24,6 @@
 #' @docType data
 "schools"
 
-
-#' EADA data
+#' NCAA
 #' @docType data
-"eada"
+"ncaa"

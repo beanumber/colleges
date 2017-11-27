@@ -31,7 +31,7 @@ load_uscb <- function(file, ...) {
   }
 
   x <- x %>%
-    mutate(Year = year)
+    rename(Year = year)
   names(x) <- c("State", "household_income",
                 "family_income",
                 "per_capita_income", "population", "Year")

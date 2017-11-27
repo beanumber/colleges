@@ -2,9 +2,10 @@
 library(tidyverse)
 
 ipeds_sat <- read.csv("data-raw/ipeds/Data_7-5-2017.csv") %>%
-gather(key = "variable", value = "value", -UnitID, -Institution.Name) %>%
+  gather(key = "variable", value = "value", -UnitID, -Institution.Name) %>%
   mutate(variable = gsub("SAT..I", "SAT.I", variable)) %>%
-  #  filter(Institution.Name == "Duke University") %>%
+  filter(variable != "X") %>%
+#   filter(Institution.Name == "Duke University") %>%
   # ADM vs. IC (admitted students vs. incoming class?)
   mutate(Year = as.numeric(stringr::str_extract(variable, "[0-9]+[0-9]+[0-9]+[0-9]+")),
          Year = ifelse(Year < 2000, floor(Year / 100) + 2001, Year),
@@ -53,9 +54,40 @@ ipeds_fees <- read.csv("data-raw/ipeds/Data_8-7-2017.csv") %>%
 ## IPEDS - combine
 
 ipeds <- ipeds_sat %>%
-  full_join(ipeds_fees, by = c("UnitID", "Year"))
-save(ipeds, file = "data/ipeds.rda", compress = "xz")
+#  filter(school_name == "Duke University")
+  left_join(ipeds_fees, by = c("UnitID", "Year"))
 
+ipeds %>%
+  group_by(Year) %>%
+  summarize(num_units = n_distinct(UnitID), num_schools = n())
+
+# save(ipeds, file = "data/ipeds.rda", compress = "xz")
+
+
+
+## EADA
+
+library(tidyverse)
+eada <- read.csv("data-raw/eada/Revenues_All_Sports_and_Men's_Women's_and_Coed_Teams_2003_2004_2005_2006_2007_2008_2009_2010_2011_2012_2013_2014_2015.csv") %>%
+  mutate(Year = paste0(Survey.Year, '-', Survey.Year + 1)) %>%
+  rename(school_name = Institution.Name, UnitID = UNITID,
+         state = State.CD) %>%
+  select(Year, UnitID, school_name, Classification.Name,
+         Total.Undergraduates, Basketball.Total.Revenue, Football.Total.Revenue)
+# save(eada, file = "data/eada.rda", compress = "xz")
+
+
+## JOIN ipeds and EADA data
+
+institutions <- ipeds %>%
+  select(-school_name) %>%
+  right_join(eada, by = c("UnitID", "Year")) %>%
+  select(-Institution.Name)
+institutions %>%
+  group_by(Classification.Name) %>%
+  summarize(num_schools = n_distinct(UnitID))
+
+save(institutions, file = "data/institutions.rda", compress = "xz")
 
 ## School lookup
 
