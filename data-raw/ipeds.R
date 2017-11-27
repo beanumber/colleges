@@ -55,3 +55,11 @@ ipeds_fees <- read.csv("data-raw/ipeds/Data_8-7-2017.csv") %>%
 ipeds <- ipeds_sat %>%
   full_join(ipeds_fees, by = c("UnitID", "Year"))
 save(ipeds, file = "data/ipeds.rda", compress = "xz")
+
+
+## School lookup
+
+schools <- readr::read_csv("data-raw/school_lkup.csv")
+save(schools, file = "data/schools.rda", compress = "xz")
+
+

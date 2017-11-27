@@ -4,7 +4,7 @@
 \name{basketball}
 \alias{basketball}
 \title{Basketball results}
-\format{An object of class \code{data.frame} with 4083 rows and 25 columns.}
+\format{An object of class \code{data.frame} with 4083 rows and 22 columns.}
 \usage{
 basketball
 }

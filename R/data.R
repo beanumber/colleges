@@ -27,3 +27,16 @@
 #'
 #'
 "incomes"
+
+#' VSE Donations
+#' @docType data
+"donations"
+
+#' Lookup table for school names
+#' @docType data
+"schools"
+
+
+#' EADA data
+#' @docType data
+"eada"
