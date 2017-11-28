@@ -60,8 +60,4 @@ ggplot(ncaa, aes(x = Year, y = yield, group = school_name)) +
   geom_point() + geom_line()
 ```
 
-    ## Warning: Removed 2808 rows containing missing values (geom_point).
-
-    ## Warning: Removed 234 rows containing missing values (geom_path).
-
 ![](README_files/figure-markdown_github/yield-1.png)

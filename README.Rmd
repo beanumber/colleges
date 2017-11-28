@@ -37,7 +37,7 @@ ncaa %>%
          yield = enrolled / admitted)
 ```
 
-```{r yield, fig.width=8}
+```{r yield, fig.width=8, warning=FALSE}
 ggplot(ncaa, aes(x = Year, y = yield, group = school_name)) + 
   geom_point() + geom_line()
 ```
