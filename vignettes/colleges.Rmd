@@ -12,7 +12,9 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
 )
 ```
 
@@ -98,3 +100,47 @@ ncaa_summary %>%
             cor_size = cor(avg_ugrads, fball_revenue, use = "complete.obs"))
 ```
 
+military academies
+
+```{r}
+qplot(data = ncaa, x = dollars_per_capita, geom = "density")
+ggplot(data = ncaa, aes(y = yield, x = log(dollars_per_capita + 1))) + 
+  geom_point() +
+  facet_wrap(~Year)
+
+ggplot(data = ncaa, aes(x = Year, y = yield, group = school_name)) + 
+  geom_line()
+
+ggplot(data = ncaa, aes(x = Year, y = admit_rate, group = school_name)) + 
+  geom_line()
+```
+
+Long-term trends
+
+```{r}
+ncaa %>%
+  group_by(Year) %>%
+  summarize(total_applications = sum(applied, na.rm = TRUE), 
+            total_admits = sum(admitted, na.rm = TRUE), 
+            total_enrolled = sum(enrolled, na.rm = TRUE), 
+            cor_sport = cor(bball_wpct, fball_wpct, use = "complete.obs"), 
+            sat_25 = mean(sat_25_avg, na.rm = TRUE),
+            sat_75 = mean(sat_75_avg, na.rm = TRUE),
+#            act_25 = mean(P25ACT, na.rm = TRUE),
+            act_75 = mean(act_composite_75, na.rm = TRUE)) %>%
+  mutate(admit_rate = total_admits / total_applications, 
+         yield = total_enrolled / total_admits)
+```
+
+```{r}
+ncaa %>%
+  mutate(sat_range = cut(sat_75_avg, breaks = seq(500, 800, by = 50))) %>%
+  ggplot(aes(x = Year, y = sat_75_avg)) + 
+    geom_line(aes(group = school_name)) + 
+    facet_wrap(~sat_range, scales = "free_y")
+```
+
+```{r}
+mod <- lm(admit_rate ~ Year + school_name, data = ncaa)
+summary(mod)
+```
