@@ -4,7 +4,8 @@ library(colleges)
 ncaa <- sports %>%
   left_join(schools, by = c("school_name" = "sports_ref_name")) %>%
   left_join(institutions, by = c("ipeds_name" = "school_name", "Year")) %>%
-  mutate(is_military = ifelse(school_name %in% c("Air Force", "Army", "Navy"), TRUE, FALSE),
+  mutate(acad_year_end = as.numeric(stringr::str_sub(Year, -4)),
+         is_military = ifelse(school_name %in% c("Air Force", "Army", "Navy"), TRUE, FALSE),
          is_private = (`State.appropriations..F` == 0),
          state_funding = `State.appropriations..F`,
          dollars_per_capita = `State.appropriations..F` / Enrolled.total,
@@ -46,7 +47,7 @@ ncaa <- sports %>%
                   0, 1),
          sat_25_avg = sat_25_total / sat_25_num,
          sat_75_avg = sat_75_total / sat_75_num) %>%
-  select(Year, school_name, is_military, is_private, state_funding, dollars_per_capita,
+  select(acad_year_end, Year, school_name, is_military, is_private, state_funding, dollars_per_capita,
          applied, admitted, enrolled, yield, admit_rate,
          #           act_composite_25,
          act_composite_75, sat_25_avg, sat_75_avg,
@@ -56,5 +57,10 @@ ncaa <- sports %>%
          fball_wins, fball_losses, fball_wpct, fb_final_ranking, fb_champs, fb_final_four)
 
 save(ncaa, file = "data/ncaa.rda", compress = "xz")
+
+fbs <- ncaa %>%
+  filter(acad_year_end < 2017,
+         !is.na(fball_losses))
+save(fbs, file = "data/fbs.rda", compress = "xz")
 
 

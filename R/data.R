@@ -27,3 +27,7 @@
 #' NCAA
 #' @docType data
 "ncaa"
+
+#' Subset of NCAA in FBS
+#' @docType data
+"fbs"
