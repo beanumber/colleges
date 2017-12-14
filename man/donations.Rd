@@ -4,7 +4,7 @@
 \name{donations}
 \alias{donations}
 \title{VSE Donations}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 2784 rows and 6 columns.}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 663 rows and 5 columns.}
 \usage{
 donations
 }

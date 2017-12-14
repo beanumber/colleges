@@ -12,7 +12,7 @@ incomes <- lapply(files, FUN = load_uscb) %>%
 
 # sanity check
 
-ggplot(incomes, aes(x = Year, y = per_capita_income, color = State)) +
+ggplot(incomes, aes(x = acad_end_year, y = per_capita_income, color = State)) +
   geom_point() +
   geom_line() +
   scale_y_continuous(labels = scales::dollar)
@@ -61,18 +61,17 @@ hs_graduates <- highschool_data2 %>%
   gather(key = "Year", value = "hs_diplomas", -State) %>%
   mutate(State = gsub("[0-9]+", "", State),
          hs_diplomas = parse_number(hs_diplomas),
-         Year = as.numeric(Year)) %>%
+         acad_end_year = as.numeric(Year)) %>%
   filter(!is.na(hs_diplomas))
 
 # save(hs_graduates, file = "data/hs_graduates.rda", compress = "xz")
 
 
 states <- incomes %>%
-  inner_join(hs_graduates, by = c("State", "Year")) %>%
-  mutate(Year = paste0(Year - 1, "-", Year))
+  inner_join(hs_graduates, by = c("State", "acad_end_year"))
 
 states %>%
-  group_by(Year) %>%
+  group_by(acad_end_year) %>%
   summarize(num_states = n())
 
 

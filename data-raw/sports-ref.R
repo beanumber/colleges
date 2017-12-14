@@ -18,6 +18,7 @@ sports <- basketball %>%
   mutate(bball_wins = parse_number(W.x), bball_losses = parse_number(L.x),
          fball_wins = parse_number(W.y), fball_losses = parse_number(L.y),
          bball_wpct = bball_wins / (bball_wins + bball_losses),
-         fball_wpct = fball_wins / (fball_wins + fball_losses))
+         fball_wpct = fball_wins / (fball_wins + fball_losses)) %>%
+  rename(bb_conf = Conf.x, fb_conf = Conf.y)
 
 save(sports, file = "data/sports.rda", compress = "xz")

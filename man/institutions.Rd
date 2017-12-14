@@ -4,7 +4,7 @@
 \name{institutions}
 \alias{institutions}
 \title{IPEDS and EADA data}
-\format{An object of class \code{data.frame} with 1648 rows and 30 columns.}
+\format{An object of class \code{data.frame} with 1648 rows and 32 columns.}
 \usage{
 institutions
 }

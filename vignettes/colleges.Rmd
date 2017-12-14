@@ -2,7 +2,8 @@
 title: "Colleges"
 author: "Ben Baumer"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -32,7 +33,7 @@ ncaa %>%
             num_bball = sum(!is.na(bball_wins)),
             num_fball = sum(!is.na(fball_wins)),
             num_military = sum(is_military),
-            num_public = sum(!is.na(is_private)),
+            num_public = sum(is_private),
             num_fees = sum(!is.na(comp_fee_out_state)),
             num_act = sum(!is.na(act_composite_75)),
             num_sat = sum(!is.na(sat_75_avg)))
@@ -44,12 +45,17 @@ ncaa_summary <- ncaa %>%
   group_by(school_name) %>%
   summarize(num_years = n(), 
             avg_ugrads = mean(ugrads, na.rm = TRUE),
+            avg_sat_75 = mean(sat_75_avg, na.rm = TRUE),
+            avg_admit_rate = mean(admit_rate, na.rm = TRUE),
             bball_wpct = sum(bball_wins) / sum(bball_wins + bball_losses),
             fball_wpct = sum(fball_wins) / sum(fball_wins + fball_losses),
             bball_revenue = sum(bball_revenue, na.rm = TRUE) / 1e6,
-            fball_revenue = sum(fball_revenue, na.rm = TRUE) / 1e6) %>%
-  mutate(bball_rev_per_ugrad = bball_revenue / avg_ugrads,
-         fball_rev_per_ugrad = fball_revenue / avg_ugrads)
+            fball_revenue = sum(fball_revenue, na.rm = TRUE) / 1e6,
+            donations = sum(grand_total, na.rm = TRUE) / 1e6,
+            athletics_donations = sum(athletics_total, na.rm = TRUE) / 1e6,
+            is_private = any(is_private)) %>%
+  mutate(bball_rev_per_ugrad = bball_revenue / (num_years * avg_ugrads),
+         fball_rev_per_ugrad = fball_revenue / (num_years * avg_ugrads))
 ```
 
 ## Biggest schools
@@ -66,6 +72,7 @@ ncaa_summary %>%
 ncaa_summary %>%
   arrange(desc(bball_wpct))
 ncaa_summary %>%
+  select(school_name, avg_ugrads, bball_wpct, bball_revenue, bball_rev_per_ugrad) %>%
   arrange(desc(bball_revenue))
 ```
 
@@ -78,21 +85,42 @@ ncaa_summary %>%
   arrange(desc(fball_revenue))
 ```
 
-## Best fundraisers
+## Best revenue generators
 
 ```{r}
 ncaa_summary %>%
   select(-fball_revenue) %>%
   arrange(desc(bball_rev_per_ugrad))
 ncaa_summary %>%
-  select(-bball_revenue, -bball_rev_per_ugrad) %>%
+  select(school_name, bball_revenue, bball_rev_per_ugrad, fball_revenue, fball_rev_per_ugrad) %>%
   arrange(desc(fball_rev_per_ugrad))
 ```
 
-## Correlations
+## Best fundraisers
 
 ```{r}
 ncaa_summary %>%
+  select(school_name, donations, athletics_donations) %>%
+  arrange(desc(donations))
+ncaa_summary %>%
+  select(school_name, donations, athletics_donations) %>%
+  arrange(desc(athletics_donations))
+ncaa_summary %>%
+  select(school_name, donations, athletics_donations) %>%
+  mutate(athletic_donation_pct = athletics_donations / donations) %>%
+  arrange(desc(athletic_donation_pct))
+```
+
+# FBS schools
+
+## Private schools
+
+## FBS Correlations
+
+```{r}
+fbs_summary <- ncaa_summary %>%
+  filter(!is.na(fball_wpct)) 
+fbs_summary %>%
   summarize(cor_cross_wpct = cor(bball_wpct, fball_wpct, use = "complete.obs"),
             cor_cross_rev = cor(bball_revenue, fball_revenue),
             cor_bball = cor(bball_wpct, bball_revenue),
@@ -100,25 +128,41 @@ ncaa_summary %>%
             cor_size = cor(avg_ugrads, fball_revenue, use = "complete.obs"))
 ```
 
-military academies
 
 ```{r}
-qplot(data = ncaa, x = dollars_per_capita, geom = "density")
-ggplot(data = ncaa, aes(y = yield, x = log(dollars_per_capita + 1))) + 
+fbs_summary %>%
+  filter(is_private)
+```
+
+
+## State funding per capita
+
+```{r}
+ggplot(data = fbs, aes(x = dollars_per_capita)) + 
+  geom_density()
+```
+
+```{r}
+ggplot(data = fbs, aes(y = yield, x = log(dollars_per_capita + 1))) + 
   geom_point() +
   facet_wrap(~Year)
+```
 
-ggplot(data = ncaa, aes(x = Year, y = yield, group = school_name)) + 
+Colorado receives $0 in state funding?
+
+## Long-term trends
+
+```{r}
+ggplot(data = fbs, aes(x = acad_end_year, y = yield, group = school_name, color = is_private)) + 
   geom_line()
 
-ggplot(data = ncaa, aes(x = Year, y = admit_rate, group = school_name)) + 
+ggplot(data = fbs, aes(x = acad_end_year, y = admit_rate, group = school_name, color = is_private)) + 
   geom_line()
 ```
 
-Long-term trends
 
 ```{r}
-ncaa %>%
+fbs %>%
   group_by(Year) %>%
   summarize(total_applications = sum(applied, na.rm = TRUE), 
             total_admits = sum(admitted, na.rm = TRUE), 
@@ -132,15 +176,39 @@ ncaa %>%
          yield = total_enrolled / total_admits)
 ```
 
+## Top schools
+
 ```{r}
-ncaa %>%
-  mutate(sat_range = cut(sat_75_avg, breaks = seq(500, 800, by = 50))) %>%
-  ggplot(aes(x = Year, y = sat_75_avg)) + 
+fbs_summary %>%
+  arrange(desc(avg_sat_75))
+```
+
+```{r}
+fbs_summary %>%
+  arrange(avg_admit_rate)
+```
+
+```{r}
+fbs %>%
+  mutate(sat_range = cut(admit_rate, breaks = 5)) %>%
+  ggplot(aes(x = acad_end_year, y = sat_75_avg, color = is_private)) + 
     geom_line(aes(group = school_name)) + 
     facet_wrap(~sat_range, scales = "free_y")
 ```
 
+## Power Five Conference schools
+
 ```{r}
-mod <- lm(admit_rate ~ Year + school_name, data = ncaa)
+power5 %>%
+  group_by(school_name) %>%
+  summarize(num_years = n(), num_confs = n_distinct(bb_conf), conf = last(bb_conf)) %>%
+  arrange(conf, school_name) %>%
+  print(n = Inf)
+```
+
+## Modeling
+
+```{r}
+mod <- lm(admit_rate ~ Year + school_name, data = fbs)
 summary(mod)
 ```

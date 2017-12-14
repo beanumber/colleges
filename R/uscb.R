@@ -30,11 +30,10 @@ load_uscb <- function(file, ...) {
                     HC02_EST_VC20, HC01_EST_VC20)
   }
 
-  x <- x %>%
-    rename(Year = year)
+  x$acad_end_year <- year
   names(x) <- c("State", "household_income",
                 "family_income",
-                "per_capita_income", "population", "Year")
+                "per_capita_income", "population", "acad_end_year")
 
   x <- x %>%
     mutate(household_income = readr::parse_number(household_income),

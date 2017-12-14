@@ -31,3 +31,7 @@
 #' Subset of NCAA in FBS
 #' @docType data
 "fbs"
+
+#' Subset of FBS in Power Five conferences
+#' @docType data
+"power5"
