@@ -56,7 +56,7 @@ ncaa <- sports %>%
          division, state,
          ugrads, comp_fee_in_state, comp_fee_out_state,
          bball_revenue, fball_revenue,
-         grand_total, alumni_total, athletics_total,
+         grand_total, alumni_total, athletics_total, zimb_total,
          bb_conf, fb_conf,
          bball_wins, bball_losses, bball_wpct, bb_final_ranking, bb_champs, bb_final_four, tourney, conf_champ, conf_tourney,
          fball_wins, fball_losses, fball_wpct, fb_final_ranking, fb_champs, fb_final_four)
@@ -87,3 +87,15 @@ power5 %>%
   summarize(N = n(), sum(is.na(grand_total)))
 
 save(power5, file = "data/power5.rda", compress = "xz")
+
+## Reconcile donations
+fbs
+x <- power5 %>%
+  select(acad_end_year, school_name, grand_total, athletics_total, alumni_total, zimb_total)
+  group_by(acad_end_year) %>%
+  summarize(N = n(), num_gt = sum(!is.na(grand_total)),
+            num_zimb = sum(!is.na(zimb_total)))
+
+
+
+
