@@ -99,7 +99,15 @@ save(institutions, file = "data/institutions.rda", compress = "xz")
 
 ## School lookup
 
+#temp_lkup <- institutions %>%
+#  group_by(UnitID) %>%
+#  summarize(N = n_distinct(school_name), names = paste(unique(school_name), collapse = ","))
+
 schools <- readr::read_csv("data-raw/school_lkup.csv")
+#schools <- schools %>%
+#  left_join(temp_lkup, by = c("ipeds_name" = "names")) %>%
+#  select(UnitID, ipeds_name, sports_ref_name)
+
 save(schools, file = "data/schools.rda", compress = "xz")
 
 

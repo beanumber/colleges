@@ -3,8 +3,9 @@ library(colleges)
 
 ncaa <- sports %>%
   left_join(schools, by = c("school_name" = "sports_ref_name")) %>%
-  left_join(institutions, by = c("ipeds_name" = "school_name", "Year")) %>%
-  mutate(acad_end_year = as.numeric(stringr::str_sub(Year, -4)),
+  left_join(institutions, by = c("UnitID", "Year")) %>%
+  mutate(school_name = school_name.x,
+         acad_end_year = as.numeric(stringr::str_sub(Year, -4)),
          is_military = ifelse(school_name %in% c("Air Force", "Army", "Navy"), TRUE, FALSE),
          is_private = ifelse(is.na(`State.appropriations..F`), TRUE,
                              ifelse(`State.appropriations..F` > 0, FALSE, TRUE)),
@@ -49,7 +50,7 @@ ncaa <- sports %>%
          sat_25_avg = sat_25_total / sat_25_num,
          sat_75_avg = sat_75_total / sat_75_num) %>%
   left_join(donations, by = c("acad_end_year", "ipeds_name" = "school_name")) %>%
-  select(acad_end_year, Year, school_name, is_military, is_private, state_funding, dollars_per_capita,
+  select(acad_end_year, Year, UnitID, school_name, is_military, is_private, state_funding, dollars_per_capita,
          applied, admitted, enrolled, yield, admit_rate,
          #           act_composite_25,
          act_composite_75, sat_25_avg, sat_75_avg,
@@ -90,11 +91,11 @@ save(power5, file = "data/power5.rda", compress = "xz")
 
 ## Reconcile donations
 fbs
-x <- power5 %>%
-  select(acad_end_year, school_name, grand_total, athletics_total, alumni_total, zimb_total)
-  group_by(acad_end_year) %>%
-  summarize(N = n(), num_gt = sum(!is.na(grand_total)),
-            num_zimb = sum(!is.na(zimb_total)))
+#x <- power5 %>%
+#  select(acad_end_year, school_name, grand_total, athletics_total, alumni_total, zimb_total)
+#  group_by(acad_end_year) %>%
+#  summarize(N = n(), num_gt = sum(!is.na(grand_total)),
+#            num_zimb = sum(!is.na(zimb_total)))
 
 
 
