@@ -50,19 +50,24 @@ ncaa <- sports %>%
          sat_25_avg = sat_25_total / sat_25_num,
          sat_75_avg = sat_75_total / sat_75_num) %>%
   left_join(donations, by = c("acad_end_year", "ipeds_name" = "school_name")) %>%
-  select(acad_end_year, Year, UnitID, school_name, is_military, is_private, state_funding, dollars_per_capita,
+  select(acad_end_year, Year, UnitID.x, school_name, is_military, is_private, state_funding, dollars_per_capita,
          applied, admitted, enrolled, yield, admit_rate,
          #           act_composite_25,
          act_composite_75, sat_25_avg, sat_75_avg,
          division, state,
          ugrads, comp_fee_in_state, comp_fee_out_state,
          bball_revenue, fball_revenue,
-         grand_total, alumni_total, athletics_total, zimb_total,
+         grand_total, athletics_total,
          bb_conf, fb_conf,
          bball_wins, bball_losses, bball_wpct, bb_final_ranking, bb_champs, bb_final_four, tourney, conf_champ, conf_tourney,
-         fball_wins, fball_losses, fball_wpct, fb_final_ranking, fb_champs, fb_final_four)
+         fball_wins, fball_losses, fball_wpct, fb_final_ranking, fb_champs, fb_final_four) %>%
+  rename(UnitID = UnitID.x)
 
-
+ncaa %>%
+  filter(is.na(grand_total)) %>%
+  group_by(school_name) %>%
+  summarize(N = n()) %>%
+  arrange(desc(N))
 
 save(ncaa, file = "data/ncaa.rda", compress = "xz")
 
@@ -85,12 +90,19 @@ power5 <- fbs %>%
 
 power5 %>%
   group_by(acad_end_year) %>%
-  summarize(N = n(), sum(is.na(grand_total)))
+  summarize(N = n(), num_schools = n_distinct(school_name),
+            money_missing = sum(is.na(grand_total)))
+
+power5 %>%
+  filter(acad_end_year > 2006, is.na(grand_total)) %>%
+  group_by(school_name) %>%
+  summarize(N = n(), years = paste0(range(acad_end_year), collapse = "-")) %>%
+  arrange(desc(N))
 
 save(power5, file = "data/power5.rda", compress = "xz")
 
 ## Reconcile donations
-fbs
+# fbs
 #x <- power5 %>%
 #  select(acad_end_year, school_name, grand_total, athletics_total, alumni_total, zimb_total)
 #  group_by(acad_end_year) %>%

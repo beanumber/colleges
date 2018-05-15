@@ -33,50 +33,75 @@ public <- readxl::read_xlsx("data-raw/ZimbalistData_07_20_2017.xlsx") %>%
 
 ## New Zimbalist data
 
-zimb_new <- readr::read_csv("data-raw/DIDonations.csv") %>%
-  mutate(acad_end_year = readr::parse_number(Year),
-         grand_total = parse_number(`Grand Total`),
-         alumni_total = parse_number(`Alumni: Total`),
-         athletics_total = parse_number(`Athletics/Total: Total Amount ($)`)) %>%
-  rename(school_name = Institution) %>%
-  mutate(school_name = gsub("Columbia University", "Columbia University in the City of New York", school_name),
-         school_name = gsub("Indiana University", "Indiana University-Bloomington", school_name),
-         school_name = gsub("Ohio State University", "Ohio State University-Main Campus", school_name),
-         school_name = gsub("Penn State University", "Pennsylvania State University-Main Campus", school_name),
-         school_name = gsub("Purdue University", "Purdue University-Main Campus", school_name),
-         school_name = gsub("Rutgers University", "Rutgers University-New Brunswick", school_name),
-         school_name = gsub("Texas A&M University", "Texas A & M University-College Station", school_name),
-         school_name = gsub("University of Colorado", "University of Colorado Boulder", school_name),
-         school_name = gsub("University of Michigan", "University of Michigan-Ann Arbor", school_name),
-         school_name = gsub("University of Minnesota", "University of Minnesota-Twin Cities", school_name),
-         school_name = gsub("University of Texas at Austin", "The University of Texas at Austin", school_name),
-         school_name = gsub("University of Washington", "University of Washington-Seattle Campus", school_name)) %>%
-  select(acad_end_year, school_name, grand_total, alumni_total, athletics_total)
-donations <- zimb_new %>%
+read_and_clean <- function(x, ...) {
+  readr::read_csv(x, ...) %>%
+    mutate(acad_end_year = readr::parse_number(Year),
+           grand_total = parse_number(`Grand Total`),
+#           alumni_total = parse_number(`Alumni: Total`),
+           athletics_total = parse_number(`Athletics/Total: Total Amount ($)`)) %>%
+    rename(donations_name = Institution)
+}
+
+# superseded
+aau_small <- read_and_clean("data-raw/donations_aau_small.csv")
+
+aau_big <- read_and_clean("data-raw/donations_aau.csv") %>%
+  select(acad_end_year, donations_name, grand_total, athletics_total)
+
+midwest <- read_and_clean("data-raw/donations_midwest.csv") %>%
+  mutate(total_current_ops = parse_number(`Total Current Operations`)) %>%
+  select(acad_end_year, donations_name, grand_total, athletics_total, total_current_ops)
+
+large <- read_and_clean("data-raw/donations_big.csv") %>%
+  select(acad_end_year, donations_name, State, grand_total, athletics_total)
+
+schools_donations <- read_csv("data-raw/schools_donations.csv")
+
+donations <- large %>%
+  full_join(midwest, by = c("acad_end_year", "donations_name")) %>%
+  full_join(aau_big, by = c("acad_end_year", "donations_name")) %>%
+  filter(!is.na(acad_end_year)) %>%
+  mutate(grand_total = pmax(grand_total.x, grand_total.y, grand_total, na.rm = TRUE),
+         athletics_total = pmax(athletics_total.x, athletics_total.y, athletics_total, na.rm = TRUE)) %>%
+  select(-ends_with(".x"), -ends_with(".y")) %>%
+  left_join(schools_donations, by = c("donations_name")) %>%
+  mutate(school_name = ifelse(is.na(ipeds_name), donations_name, ipeds_name)) %>%
   left_join(schools, by = c("school_name" = "ipeds_name")) %>%
-  full_join(public, by = c("school_name" = "ipeds_name", "acad_end_year" = "acad_end_year")) %>%
-  select(-sports_ref_name) %>%
-  arrange(school_name, acad_end_year)
+  select(-donations_name) %>%
+  arrange(school_name, acad_end_year) %>%
+  distinct()
 
 donations %>%
   filter(is.na(sports_ref_name)) %>%
-  select(school_name, sports_ref_name) %>%
-  unique() %>%
-  print(n = Inf)
+  group_by(school_name) %>%
+  summarize(N = n(), dollars = sum(grand_total)) %>%
+  arrange(desc(dollars))
 
-donations %>%
-  filter(!is.na(zimb_total)) %>%
-  select(sports_ref_name) %>%
-  unique() %>%
-  print(n = Inf)
+#donations <- zimb_new %>%
+#  left_join(schools, by = c("school_name" = "ipeds_name")) %>%
+#  full_join(public, by = c("school_name" = "ipeds_name", "acad_end_year" = "acad_end_year")) %>%
+
+# donations %>%
+#   filter(is.na(sports_ref_name)) %>%
+#   select(school_name, sports_ref_name) %>%
+#   unique() %>%
+#   print(n = Inf)
+#
+# donations %>%
+#   filter(!is.na(zimb_total)) %>%
+#   select(sports_ref_name) %>%
+#   unique() %>%
+#   print(n = Inf)
 
 donations %>%
   group_by(acad_end_year) %>%
-  summarize(N = n(), num_vse = sum(!is.na(grand_total)),
-            num_zimb = sum(!is.na(zimb_total)))
+  summarize(N = n(), matched = sum(!is.na(UnitID)),
+            num_grand = sum(!is.na(grand_total)),
+            num_athletics = sum(!is.na(athletics_total)))
 
-ggplot(donations, aes(x = grand_total, y = zimb_total)) +
-  geom_point()
+ggplot(donations, aes(x = grand_total, y = athletics_total)) +
+  geom_point() +
+  scale_x_log10() + scale_y_log10()
 
 # save
 save(donations, file = "data/donations.rda", compress = "xz")

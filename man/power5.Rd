@@ -4,7 +4,7 @@
 \name{power5}
 \alias{power5}
 \title{Subset of FBS in Power Five conferences}
-\format{An object of class \code{data.frame} with 715 rows and 45 columns.}
+\format{An object of class \code{data.frame} with 715 rows and 43 columns.}
 \usage{
 power5
 }

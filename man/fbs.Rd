@@ -4,7 +4,7 @@
 \name{fbs}
 \alias{fbs}
 \title{Subset of NCAA in FBS}
-\format{An object of class \code{data.frame} with 1343 rows and 45 columns.}
+\format{An object of class \code{data.frame} with 1343 rows and 43 columns.}
 \usage{
 fbs
 }

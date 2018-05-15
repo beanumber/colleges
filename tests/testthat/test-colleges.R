@@ -42,3 +42,14 @@ test_that("basketball works", {
     summarize(num_teams = n(), champ = first(school_name))
 
 })
+
+test_that("donations are in", {
+  expect_lte(
+    power5 %>%
+      filter(acad_end_year > 2006, is.na(grand_total)) %>%
+      group_by(school_name) %>%
+      summarize(N = n()) %>%
+      arrange(desc(N)) %>%
+      nrow(),
+    13)
+})

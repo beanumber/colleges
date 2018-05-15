@@ -1,6 +1,6 @@
 Package: colleges
 Title: Data about college enrollments, donations, and athletics
-Version: 0.0.0.9003
+Version: 0.0.0.9005
 Authors@R: person("Benjamin", "Baumer", email = "ben.baumer@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 Depends: R (>= 3.0)

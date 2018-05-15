@@ -66,9 +66,13 @@ hs_graduates <- highschool_data2 %>%
 
 # save(hs_graduates, file = "data/hs_graduates.rda", compress = "xz")
 
+state_lkup <- data.frame(abb = state.abb, name = state.name) %>%
+  tibble::add_row(abb = "DC", name = "District of Columbia") %>%
+  tibble::add_row(abb = "PR", name = "Puerto Rico")
 
 states <- incomes %>%
-  inner_join(hs_graduates, by = c("State", "acad_end_year"))
+  inner_join(hs_graduates, by = c("State", "acad_end_year")) %>%
+  left_join(state_lkup, by= c("State" = "name"))
 
 states %>%
   group_by(acad_end_year) %>%
