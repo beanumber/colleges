@@ -70,8 +70,8 @@ get_bball_year <- function(year) {
     mutate_(Year = ~paste0(year - 1, "-", year),
             bb_final_ranking = ~as.numeric(`AP Final`),
            # not the tournament champion!!
-            bb_champs = ~`AP Final` == 1,
-            bb_final_four = ~bb_final_ranking <= 4,
+            bb_champs = ~grepl(Notes, pattern = "NCAA Champion"),
+            bb_final_four = ~grepl(Notes, pattern = "NCAA FF"),
             tourney = ~grepl(Notes, pattern = "NCAA Tournament"),
             conf_champ = ~grepl(Notes, pattern = "Reg. Season Champion"),
             conf_tourney = ~grepl(Notes, pattern = "Conf. Tournament Champion")) %>%
