@@ -4,7 +4,7 @@
 \name{ncaa}
 \alias{ncaa}
 \title{NCAA}
-\format{An object of class \code{data.frame} with 4083 rows and 42 columns.}
+\format{An object of class \code{data.frame} with 5060 rows and 42 columns.}
 \usage{
 ncaa
 }

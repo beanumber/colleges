@@ -3,7 +3,7 @@
 library(tidyverse)
 library(colleges)
 
-years <- 2005:2016
+years <- 2002:2016
 
 football <- lapply(years, get_fball_year) %>%
   bind_rows()
