@@ -1,8 +1,14 @@
 Package: colleges
 Title: Data about college enrollments, donations, and athletics
-Version: 0.0.0.9006
-Authors@R: person("Benjamin", "Baumer", email = "ben.baumer@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Version: 0.0.1
+Date: 2018-11-01
+Authors@R: person("Benjamin S.", "Baumer", email = "ben.baumer@gmail.com", role = c("aut", "cre"))
+Description: Data from the Council for Advancement and Support of Education annual 
+    Voluntary Support of Education (VSE) surveys, Integrated Postsecondary 
+    Education Data System (IPEDs) surveys, the National Center for Education 
+    Statistics for high school graduates, the US Census Bureau for demographic 
+    information, and Sports-Reference.com are compiled here for easy cross-sectional
+    analysis.
 Depends: R (>= 3.0)
 Imports:
     dplyr,
@@ -14,9 +20,11 @@ Imports:
 License: CC0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Suggests: testthat,
     knitr,
     rmarkdown,
     tidyverse
 VignetteBuilder: knitr
+URL: http://github.com/beanumber/colleges
+BugReports: https://github.com/beanumber/colleges/issues
